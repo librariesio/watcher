@@ -27,13 +27,13 @@ end
 threads = []
 
 feeds = [
-  ['http://registry.npmjs.org/-/rss?descending=true&limit=50', 'npm'],
-  ['http://packagist.org/feeds/releases.rss', 'composer'],
-  ['http://packagist.org/feeds/packages.rss', 'composer'],
-  ['http://hackage.haskell.org/packages/recent.rss', 'hackage'],
-  ['http://lib.haxe.org/rss/', 'haxelib'],
-  ['http://pypi.python.org/pypi?%3Aaction=rss', 'pypi'],
-  ['http://pypi.python.org/pypi?%3Aaction=packages_rss', 'pypi']
+  ['http://registry.npmjs.org/-/rss?descending=true&limit=50', 'NPM'],
+  ['http://packagist.org/feeds/releases.rss', 'Packagist'],
+  ['http://packagist.org/feeds/packages.rss', 'Packagist'],
+  ['http://hackage.haskell.org/packages/recent.rss', 'Hackage'],
+  ['http://lib.haxe.org/rss/', 'Haxelib'],
+  ['http://pypi.python.org/pypi?%3Aaction=rss', 'Pypi'],
+  ['http://pypi.python.org/pypi?%3Aaction=packages_rss', 'Pypi']
 ]
 feeds.each do |feed|
   threads << Thread.new do
