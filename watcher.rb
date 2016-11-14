@@ -1,10 +1,16 @@
 require 'bundler'
 Bundler.require
 
-MEMCACHED_URL = ENV['MEMCACHED_URL'] || 'localhost:11211'
-
 def follow_feed(url, platform)
-  client = Feedtosis::Client.new(url, backend: Moneta.new(:MemcachedDalli, server: MEMCACHED_URL))
+  memcached_options = {
+    server: (ENV["MEMCACHIER_SERVERS"] || "localhost:11211").split(","),
+    username: ENV["MEMCACHIER_USERNAME"],
+    password: ENV["MEMCACHIER_PASSWORD"],
+    failover: true,
+    socket_timeout: 1.5,
+    socket_failure_delay: 0.2
+  }
+  client = Feedtosis::Client.new(url, backend: Moneta.new(:MemcachedDalli, memcached_options))
   while(true) do
     new_entries = client.fetch.new_entries
     if new_entries
