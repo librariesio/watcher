@@ -15,7 +15,11 @@ def follow_feed(url, platform)
     new_entries = client.fetch.new_entries
     if new_entries
       new_entries.each do |entry|
-        name = entry.title.split(' ').first
+        if platform == 'Pub'
+          name = entry.title.split(' ').last
+        else
+          name = entry.title.split(' ').first
+        end
         puts "#{platform}/#{name}"
         Sidekiq::Client.push('queue' => 'default', 'class' => 'RepositoryDownloadWorker', 'args' => [platform, name])
       end
@@ -33,7 +37,8 @@ feeds = [
   ['http://hackage.haskell.org/packages/recent.rss', 'Hackage'],
   ['http://lib.haxe.org/rss/', 'Haxelib'],
   ['http://pypi.python.org/pypi?%3Aaction=rss', 'Pypi'],
-  ['http://pypi.python.org/pypi?%3Aaction=packages_rss', 'Pypi']
+  ['http://pypi.python.org/pypi?%3Aaction=packages_rss', 'Pypi'],
+  ['http://pub.dartlang.org/feed.atom', 'Pub']
 ]
 feeds.each do |feed|
   threads << Thread.new do
