@@ -38,7 +38,8 @@ feeds = [
   ['http://lib.haxe.org/rss/', 'Haxelib'],
   ['http://pypi.python.org/pypi?%3Aaction=rss', 'Pypi'],
   ['http://pypi.python.org/pypi?%3Aaction=packages_rss', 'Pypi'],
-  ['http://pub.dartlang.org/feed.atom', 'Pub']
+  ['http://pub.dartlang.org/feed.atom', 'Pub'],
+  ['http://atom.io/packages.atom', 'Atom']
 ]
 feeds.each do |feed|
   threads << Thread.new do
