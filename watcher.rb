@@ -17,7 +17,7 @@ def follow_feed(url, platform)
       new_entries.each do |entry|
         if platform == 'Pub'
           name = entry.title.split(' ').last
-        elsif platform == 'Cocoapods'
+        elsif platform == 'CocoaPods'
           name = entry.title.split(' ')[1]
         else
           name = entry.title.split(' ').first
@@ -43,7 +43,7 @@ feeds = [
   ['http://pub.dartlang.org/feed.atom', 'Pub'],
   ['http://atom.io/packages.atom', 'Atom'],
   ['http://melpa.org/updates.rss', 'Emacs'],
-  ['http://cocoapods.libraries.io/feed.rss', 'Cocoapods']
+  ['http://cocoapods.libraries.io/feed.rss', 'CocoaPods']
 ]
 feeds.each do |feed|
   threads << Thread.new do
