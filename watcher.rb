@@ -17,6 +17,8 @@ def follow_feed(url, platform)
       new_entries.each do |entry|
         if platform == 'Pub'
           name = entry.title.split(' ').last
+        elsif platform == 'Cocoapods'
+          name = entry.title.split(' ')[1]
         else
           name = entry.title.split(' ').first
         end
@@ -40,7 +42,8 @@ feeds = [
   ['http://pypi.python.org/pypi?%3Aaction=packages_rss', 'Pypi'],
   ['http://pub.dartlang.org/feed.atom', 'Pub'],
   ['http://atom.io/packages.atom', 'Atom'],
-  ['http://melpa.org/updates.rss', 'Emacs']
+  ['http://melpa.org/updates.rss', 'Emacs'],
+  ['http://cocoapods.libraries.io/feed.rss', 'Cocoapods']
 ]
 feeds.each do |feed|
   threads << Thread.new do
