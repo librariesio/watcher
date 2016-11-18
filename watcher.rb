@@ -11,7 +11,6 @@ MEMCACHED_OPTIONS = {
 }
 
 def follow_feed(url, platform)
-  p MEMCACHED_OPTIONS
   client = Feedtosis::Client.new(url, backend: Moneta.new(:MemcachedDalli, MEMCACHED_OPTIONS.dup))
   while(true) do
     new_entries = client.fetch.new_entries
@@ -54,7 +53,6 @@ feeds.each do |feed|
 end
 
 def follow_rubygems_json(url)
-  p MEMCACHED_OPTIONS
   dc = Dalli::Client.new(MEMCACHED_OPTIONS[:server], MEMCACHED_OPTIONS.select {|k,v| k != :server })
   while(true) do
     update_names = dc.fetch(url) { [] }
