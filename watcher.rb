@@ -1,16 +1,17 @@
 require 'bundler'
 Bundler.require
 
+MEMCACHED_OPTIONS = {
+  server: (ENV["MEMCACHIER_SERVERS"] || "localhost:11211").split(","),
+  username: ENV["MEMCACHIER_USERNAME"],
+  password: ENV["MEMCACHIER_PASSWORD"],
+  failover: true,
+  socket_timeout: 1.5,
+  socket_failure_delay: 0.2
+}
+
 def follow_feed(url, platform)
-  memcached_options = {
-    server: (ENV["MEMCACHIER_SERVERS"] || "localhost:11211").split(","),
-    username: ENV["MEMCACHIER_USERNAME"],
-    password: ENV["MEMCACHIER_PASSWORD"],
-    failover: true,
-    socket_timeout: 1.5,
-    socket_failure_delay: 0.2
-  }
-  client = Feedtosis::Client.new(url, backend: Moneta.new(:MemcachedDalli, memcached_options))
+  client = Feedtosis::Client.new(url, backend: Moneta.new(:MemcachedDalli, MEMCACHED_OPTIONS))
   while(true) do
     new_entries = client.fetch.new_entries
     if new_entries
@@ -49,6 +50,31 @@ feeds.each do |feed|
   threads << Thread.new do
     follow_feed(feed[0], feed[1])
   end
+end
+
+def follow_rubygems_json(url)
+  dc = ::Dalli::Client.new(MEMCACHED_OPTIONS[:server], MEMCACHED_OPTIONS.select {|k,v| k != :server })
+  while(true) do
+    update_names = dc.fetch(url) { [] }
+
+    names = JSON.parse(Curl.get(url).body_str).map{|g| g['name']}.uniq
+
+    (names - update_names).each do |name|
+      puts "Rubygems/#{name}"
+      Sidekiq::Client.push('queue' => 'default', 'class' => 'RepositoryDownloadWorker', 'args' => ['Rubygems', name])
+    end
+
+    dc.set(url, names)
+    sleep 30
+  end
+end
+
+threads << Thread.new do
+  follow_rubygems_json('https://rubygems.org/api/v1/activity/just_updated.json')
+end
+
+threads << Thread.new do
+  follow_rubygems_json('https://rubygems.org/api/v1/activity/latest.json')
 end
 
 threads.each { |thr| thr.join }
