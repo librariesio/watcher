@@ -12,7 +12,7 @@ MEMCACHED_OPTIONS = {
 
 def follow_feed(url, platform)
   p MEMCACHED_OPTIONS
-  client = Feedtosis::Client.new(url, backend: Moneta.new(:MemcachedDalli, MEMCACHED_OPTIONS))
+  client = Feedtosis::Client.new(url, backend: Moneta.new(:MemcachedDalli, MEMCACHED_OPTIONS.dup))
   while(true) do
     new_entries = client.fetch.new_entries
     if new_entries
