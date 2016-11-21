@@ -42,7 +42,6 @@ feeds = [
   ['http://pypi.python.org/pypi?%3Aaction=rss', 'Pypi'],
   ['http://pypi.python.org/pypi?%3Aaction=packages_rss', 'Pypi'],
   ['http://pub.dartlang.org/feed.atom', 'Pub'],
-  ['http://atom.io/packages.atom', 'Atom'],
   ['http://melpa.org/updates.rss', 'Emacs'],
   ['http://cocoapods.libraries.io/feed.rss', 'CocoaPods']
 ]
