@@ -52,16 +52,32 @@ feeds.each do |feed|
   end
 end
 
-def follow_rubygems_json(url)
+def follow_json(url, platform)
   dc = Dalli::Client.new(MEMCACHED_OPTIONS[:server], MEMCACHED_OPTIONS.select {|k,v| k != :server })
   while(true) do
     update_names = dc.fetch(url) { [] }
 
-    names = JSON.parse(Curl.get(url).body_str).map{|g| g['name']}.uniq
+    request = Curl::Easy.perform(url) do |curl|
+      curl.headers["User-Agent"] = "Libraries.io Watcher"
+    end
+
+    json = JSON.parse(request.body_str)
+
+    if platform == 'Elm'
+      names = json
+    elsif platform == 'Cargo'
+      updated_names = json['just_updated'].map{|c| c['name']}
+      new_names = json['new_crates'].map{|c| c['name']}
+      names = (updated_names + new_names).uniq
+    elsif platform == 'CPAN'
+      names = json['hits']['hits'].map{|project| project['fields']['distribution'] }.uniq
+    else
+      names = json.map{|g| g['name']}.uniq
+    end
 
     (names - update_names).each do |name|
-      puts "Rubygems/#{name}"
-      Sidekiq::Client.push('queue' => 'default', 'class' => 'RepositoryDownloadWorker', 'args' => ['Rubygems', name])
+      puts "#{platform}/#{name}"
+      Sidekiq::Client.push('queue' => 'default', 'class' => 'RepositoryDownloadWorker', 'args' => [platform, name])
     end
 
     dc.set(url, names)
@@ -69,12 +85,22 @@ def follow_rubygems_json(url)
   end
 end
 
-threads << Thread.new do
-  follow_rubygems_json('https://rubygems.org/api/v1/activity/just_updated.json')
-end
+urls = [
+  ['https://rubygems.org/api/v1/activity/just_updated.json', 'Rubygems'],
+  ['https://rubygems.org/api/v1/activity/latest.json', 'Rubygems'],
+  ['https://atom.io/api/packages?page=1&sort=created_at&direction=desc', 'Atom'],
+  ['https://atom.io/api/packages?page=1&sort=updated_at&direction=desc', 'Atom'],
+  ['http://package.elm-lang.org/new-packages', 'Elm'],
+  ['https://crates.io/summary', 'Cargo'],
+  ['http://api.metacpan.org/v0/release/_search?q=status:latest&fields=distribution&sort=date:desc&size=100', 'CPAN'],
+  ['https://hex.pm/api/packages?sort=inserted_at', 'Hex'],
+  ['https://hex.pm/api/packages?sort=updated_at', 'Hex']
+]
 
-threads << Thread.new do
-  follow_rubygems_json('https://rubygems.org/api/v1/activity/latest.json')
+urls.each do |url|
+  threads << Thread.new do
+    follow_json(url[0], url[1])
+  end
 end
 
 threads.each { |thr| thr.join }
