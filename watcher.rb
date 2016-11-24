@@ -1,5 +1,6 @@
 require 'bundler'
 Bundler.require
+Dotenv.load
 
 MEMCACHED_OPTIONS = {
   server: (ENV["MEMCACHIER_SERVERS"] || "localhost:11211").split(","),

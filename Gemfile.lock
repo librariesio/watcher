@@ -15,6 +15,7 @@ GEM
     connection_pool (2.2.1)
     curb (0.9.3)
     dalli (2.7.6)
+    dotenv (2.1.1)
     feed-normalizer (1.5.2)
       hpricot (>= 0.6)
       simple-rss (>= 1.1)
@@ -37,6 +38,7 @@ PLATFORMS
 
 DEPENDENCIES
   dalli
+  dotenv
   feedtosis!
   moneta
   sidekiq
