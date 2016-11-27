@@ -17,11 +17,11 @@ def follow_feed(url, platform)
     new_entries = client.fetch.new_entries
     if new_entries
       new_entries.each do |entry|
-        if platform == 'Pub'
+        if platform == 'Pub' && entry.title
           name = entry.title.split(' ').last
-        elsif platform == 'CocoaPods'
+        elsif platform == 'CocoaPods' && entry.title
           name = entry.title.split(' ')[1]
-        else
+        elsif entry.title
           name = entry.title.split(' ').first
         end
         puts "#{platform}/#{name}"
