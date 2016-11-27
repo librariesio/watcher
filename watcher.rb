@@ -17,15 +17,22 @@ def follow_feed(url, platform)
     new_entries = client.fetch.new_entries
     if new_entries
       new_entries.each do |entry|
-        if platform == 'Pub' && entry.title
-          name = entry.title.split(' ').last
-        elsif platform == 'CocoaPods' && entry.title
-          name = entry.title.split(' ')[1]
-        elsif entry.title
-          name = entry.title.split(' ').first
+        begin
+          name = nil
+          if platform == 'Pub' && entry.title
+            name = entry.title.split(' ').last
+          elsif platform == 'CocoaPods' && entry.title
+            name = entry.title.split(' ')[1]
+          elsif entry.title
+            name = entry.title.split(' ').first
+          end
+          if name
+            puts "#{platform}/#{name}"
+            Sidekiq::Client.push('queue' => 'default', 'class' => 'RepositoryDownloadWorker', 'args' => [platform, name])
+          end
+        rescue
+          p entry
         end
-        puts "#{platform}/#{name}"
-        Sidekiq::Client.push('queue' => 'default', 'class' => 'RepositoryDownloadWorker', 'args' => [platform, name])
       end
     end
     sleep 30
@@ -57,6 +64,7 @@ def follow_json(url, platform)
   while(true) do
     update_names = dc.fetch(url) { [] }
 
+    begin
     request = Curl::Easy.perform(url) do |curl|
       curl.headers["User-Agent"] = "Libraries.io Watcher"
     end
@@ -81,6 +89,9 @@ def follow_json(url, platform)
     end
 
     dc.set(url, names)
+    rescue
+      p "error in #{platform} json feed"
+    end
     sleep 30
   end
 end
