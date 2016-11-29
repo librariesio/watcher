@@ -14,26 +14,30 @@ MEMCACHED_OPTIONS = {
 def follow_feed(url, platform)
   client = Feedtosis::Client.new(url, backend: Moneta.new(:MemcachedDalli, MEMCACHED_OPTIONS.dup))
   while(true) do
-    new_entries = client.fetch.new_entries
-    if new_entries
-      new_entries.each do |entry|
-        begin
-          name = nil
-          if platform == 'Pub' && entry.title
-            name = entry.title.split(' ').last
-          elsif platform == 'CocoaPods' && entry.title
-            name = entry.title.split(' ')[1]
-          elsif entry.title
-            name = entry.title.split(' ').first
+    begin
+      new_entries = client.fetch.new_entries
+      if new_entries
+        new_entries.each do |entry|
+          begin
+            name = nil
+            if platform == 'Pub' && entry.title
+              name = entry.title.split(' ').last
+            elsif platform == 'CocoaPods' && entry.title
+              name = entry.title.split(' ')[1]
+            elsif entry.title
+              name = entry.title.split(' ').first
+            end
+            if name
+              puts "#{platform}/#{name}"
+              Sidekiq::Client.push('queue' => 'default', 'class' => 'RepositoryDownloadWorker', 'args' => [platform, name])
+            end
+          rescue
+            p entry
           end
-          if name
-            puts "#{platform}/#{name}"
-            Sidekiq::Client.push('queue' => 'default', 'class' => 'RepositoryDownloadWorker', 'args' => [platform, name])
-          end
-        rescue
-          p entry
         end
       end
+    rescue
+      nil
     end
     sleep 30
   end
@@ -65,30 +69,30 @@ def follow_json(url, platform)
     update_names = dc.fetch(url) { [] }
 
     begin
-    request = Curl::Easy.perform(url) do |curl|
-      curl.headers["User-Agent"] = "Libraries.io Watcher"
-    end
+      request = Curl::Easy.perform(url) do |curl|
+        curl.headers["User-Agent"] = "Libraries.io Watcher"
+      end
 
-    json = JSON.parse(request.body_str)
+      json = JSON.parse(request.body_str)
 
-    if platform == 'Elm'
-      names = json
-    elsif platform == 'Cargo'
-      updated_names = json['just_updated'].map{|c| c['name']}
-      new_names = json['new_crates'].map{|c| c['name']}
-      names = (updated_names + new_names).uniq
-    elsif platform == 'CPAN'
-      names = json['hits']['hits'].map{|project| project['fields']['distribution'] }.uniq
-    else
-      names = json.map{|g| g['name']}.uniq
-    end
+      if platform == 'Elm'
+        names = json
+      elsif platform == 'Cargo'
+        updated_names = json['just_updated'].map{|c| c['name']}
+        new_names = json['new_crates'].map{|c| c['name']}
+        names = (updated_names + new_names).uniq
+      elsif platform == 'CPAN'
+        names = json['hits']['hits'].map{|project| project['fields']['distribution'] }.uniq
+      else
+        names = json.map{|g| g['name']}.uniq
+      end
 
-    (names - update_names).each do |name|
-      puts "#{platform}/#{name}"
-      Sidekiq::Client.push('queue' => 'default', 'class' => 'RepositoryDownloadWorker', 'args' => [platform, name])
-    end
+      (names - update_names).each do |name|
+        puts "#{platform}/#{name}"
+        Sidekiq::Client.push('queue' => 'default', 'class' => 'RepositoryDownloadWorker', 'args' => [platform, name])
+      end
 
-    dc.set(url, names)
+      dc.set(url, names)
     rescue
       p "error in #{platform} json feed"
     end
