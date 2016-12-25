@@ -11,7 +11,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    concurrent-ruby (1.0.2)
+    concurrent-ruby (1.0.3)
     connection_pool (2.2.1)
     curb (0.9.3)
     dalli (2.7.6)
@@ -21,7 +21,7 @@ GEM
       simple-rss (>= 1.1)
     hpricot (0.8.6)
     http_headers (0.0.2.3)
-    moneta (0.8.0)
+    moneta (0.8.1)
     rack (2.0.1)
     rack-protection (1.5.3)
       rack
