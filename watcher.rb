@@ -31,8 +31,9 @@ def follow_feed(url, platform)
               puts "#{platform}/#{name}"
               Sidekiq::Client.push('queue' => 'default', 'class' => 'RepositoryDownloadWorker', 'args' => [platform, name])
             end
-          rescue
+          rescue => exception
             p entry
+            p exception
           end
         end
       end
@@ -93,8 +94,9 @@ def follow_json(url, platform)
       end
 
       dc.set(url, names)
-    rescue
-      p "error in #{platform} json feed"
+    rescue => exception
+      p entry
+      p exception
     end
     sleep 30
   end
