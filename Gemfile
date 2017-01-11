@@ -6,3 +6,7 @@ gem 'moneta'
 gem 'dalli'
 gem 'sidekiq'
 gem 'dotenv'
+
+group :development do
+  gem 'capistrano'
+end
