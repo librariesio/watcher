@@ -90,7 +90,7 @@ def follow_json(url, platform)
 
       (names - update_names).each do |name|
         puts "#{platform}/#{name}"
-        Sidekiq::Client.push('queue' => 'default', 'class' => 'RepositoryDownloadWorker', 'args' => [platform, name])
+        Sidekiq::Client.push('queue' => 'default', 'class' => 'PackageManagerDownloadWorker', 'args' => [platform, name])
       end
 
       dc.set(url, names)
