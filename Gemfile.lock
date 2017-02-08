@@ -13,7 +13,7 @@ GEM
   specs:
     airbrussh (1.1.2)
       sshkit (>= 1.6.1, != 1.7.0)
-    capistrano (3.7.1)
+    capistrano (3.7.2)
       airbrussh (>= 1.0.0)
       capistrano-harrow
       i18n
@@ -24,13 +24,13 @@ GEM
     connection_pool (2.2.1)
     curb (0.9.3)
     dalli (2.7.6)
-    dotenv (2.1.1)
+    dotenv (2.2.0)
     feed-normalizer (1.5.2)
       hpricot (>= 0.6)
       simple-rss (>= 1.1)
     hpricot (0.8.6)
     http_headers (0.0.2.3)
-    i18n (0.7.0)
+    i18n (0.8.0)
     moneta (0.8.1)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
@@ -39,8 +39,8 @@ GEM
     rack-protection (1.5.3)
       rack
     rake (12.0.0)
-    redis (3.3.2)
-    sidekiq (4.2.8)
+    redis (3.3.3)
+    sidekiq (4.2.9)
       concurrent-ruby (~> 1.0)
       connection_pool (~> 2.2, >= 2.2.0)
       rack-protection (>= 1.5.0)
@@ -65,4 +65,4 @@ RUBY VERSION
    ruby 2.3.1p112
 
 BUNDLED WITH
-   1.13.6
+   1.14.3
