@@ -47,7 +47,6 @@ end
 threads = []
 
 feeds = [
-  ['http://registry.npmjs.org/-/rss?descending=true&limit=50', 'NPM'],
   ['http://packagist.org/feeds/releases.rss', 'Packagist'],
   ['http://packagist.org/feeds/packages.rss', 'Packagist'],
   ['http://hackage.haskell.org/packages/recent.rss', 'Hackage'],
@@ -78,6 +77,8 @@ def follow_json(url, platform)
 
       if platform == 'Elm'
         names = json
+      elsif platform == 'NPM'
+        names = json
       elsif platform == 'Cargo'
         updated_names = json['just_updated'].map{|c| c['name']}
         new_names = json['new_crates'].map{|c| c['name']}
@@ -103,6 +104,7 @@ def follow_json(url, platform)
 end
 
 urls = [
+  ['http://npm-update-stream.libraries.io/', 'NPM'],
   ['https://rubygems.org/api/v1/activity/just_updated.json', 'Rubygems'],
   ['https://rubygems.org/api/v1/activity/latest.json', 'Rubygems'],
   ['https://atom.io/api/packages?page=1&sort=created_at&direction=desc', 'Atom'],
