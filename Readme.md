@@ -2,6 +2,20 @@
 
 Ruby app for enqueuing sidekiq jobs for [Libraries.io](https://libraries.io) from package manager rss feeds.
 
+## How it works
+
+Watcher polls RSS feeds and JSON API endpoints from package manager registries every 30 seconds to check for new and updated packages.
+
+When New/updated packages are seen, watcher enqueues jobs directly into the [Libraries.io](https://github.com/librariesio/libraries.io) sidekiq queue to download those packages.
+
+It keeps a cache of the package updates it's seen recently to help reduce the load on the package manager registries and push new data into the system faster.
+
+## Adding Support for a new feed
+
+The code base is split into two separate sections, one for RSS/ATOM and one for JSON feeds.
+
+For RSS feeds of new or recently updated packages then add each url to the `feeds` array, For JSON APIs then add each url to the `urls` array, along with the class name of the package, as listed in [`app/models/package_manager`](https://github.com/librariesio/libraries.io/tree/master/app/models/package_manager) in the Libraries.io main rails application.
+
 ## Development
 
 Source hosted at [GitHub](http://github.com/librariesio/watcher).

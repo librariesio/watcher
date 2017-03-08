@@ -11,6 +11,8 @@ MEMCACHED_OPTIONS = {
   socket_failure_delay: 0.2
 }
 
+### RSS/ATOM Feeds
+
 def follow_feed(url, platform)
   client = Feedtosis::Client.new(url, backend: Moneta.new(:MemcachedDalli, MEMCACHED_OPTIONS.dup))
   while(true) do
@@ -62,6 +64,8 @@ feeds.each do |feed|
     follow_feed(feed[0], feed[1])
   end
 end
+
+# JSON API feeds
 
 def follow_json(url, platform)
   dc = Dalli::Client.new(MEMCACHED_OPTIONS[:server], MEMCACHED_OPTIONS.select {|k,v| k != :server })
