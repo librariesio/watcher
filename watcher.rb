@@ -31,7 +31,7 @@ def follow_feed(url, platform)
             end
             if name
               puts "#{platform}/#{name}"
-              Sidekiq::Client.push('queue' => 'default', 'class' => 'RepositoryDownloadWorker', 'args' => [platform, name])
+              Sidekiq::Client.push('queue' => 'default', 'class' => 'PackageManagerDownloadWorker', 'args' => [platform, name])
             end
           rescue => exception
             p entry
