@@ -1,5 +1,7 @@
 # [Watcher](https://libraries.io/github/librariesio/watcher)
 
+:warning: This project has been combined with github-dispatch and merged into https://github.com/librariesio/dispatch, this repo will no longer be updated :warning:
+
 Ruby app for enqueuing sidekiq jobs for [Libraries.io](https://libraries.io) from package manager rss feeds.
 
 ## How it works
